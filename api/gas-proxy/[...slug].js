@@ -1,11 +1,8 @@
 export default async function handler(req, res) {
   const slug = req.query.slug || [];
-  const actionPathFromSlug = slug.length ? `/${slug.join('/')}` : null;
-  const actionPathFromQuery = req.query.actionPath;
-  const actionPath = actionPathFromSlug || actionPathFromQuery;
 
-  // Specialus /ping atsakymas
-  if (actionPath === '/ping') {
+  // Jei kelias yra tik "ping" — atsakom lokaliai
+  if (slug.length === 1 && slug[0] === 'ping') {
     return res.status(200).json({
       status: 'success',
       message: 'API is healthy',
@@ -13,33 +10,9 @@ export default async function handler(req, res) {
     });
   }
 
-  if (!actionPath) {
-    return res.status(400).json({ status: 'error', message: 'Unknown path' });
-  }
-
-  const targetUrl = `https://script.google.com/macros/s/AKfycbyWEhO7ewpOldUzZwZktmIlaiQh_-ATawzOr_QuCp86DH40cYWLcIL97EZSxFq_vs8a/exec`;
-
-  try {
-    const url = new URL(targetUrl);
-    url.searchParams.set('actionPath', actionPath);
-    for (const [key, value] of Object.entries(req.query)) {
-      if (key !== 'slug' && key !== 'actionPath') {
-        url.searchParams.set(key, value);
-      }
-    }
-
-    const response = await fetch(url.toString(), {
-      method: req.method,
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: req.method === 'POST' ? JSON.stringify(req.body) : undefined
-    });
-
-    const data = await response.text();
-    res.status(response.status).send(data);
-
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+  // Jei ne /ping, grąžinam klaidą (nes nenorim nieko siųsti į Google Script)
+  return res.status(400).json({
+    status: 'error',
+    message: 'Only /ping endpoint is supported in this mode'
+  });
 }
