@@ -1,0 +1,12 @@
+{
+  "name": "tshagentdispatch",
+  "version": "1.0.0",
+  "description": "Vercel serverless API proxy for OpenAI requests",
+  "main": "[...slug].js",
+  "scripts": {
+    "start": "vercel dev"
+  },
+  "dependencies": {
+    "openai": "^4.0.0"
+  }
+}
