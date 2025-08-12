@@ -1,18 +1,23 @@
 export default async function handler(req, res) {
-  const slug = req.query.slug || [];
+  const { slug } = req.query;
 
-  // Jei kelias yra tik "ping" — atsakom lokaliai
-  if (slug.length === 1 && slug[0] === 'ping') {
-    return res.status(200).json({
-      status: 'success',
-      message: 'API is healthy',
-      mode: 'READWRITE'
+  // Sujungiame URL kelią
+  const path = slug.join('/');
+
+  try {
+    const openaiResponse = await fetch(`https://api.openai.com/v1/${path}`, {
+      method: req.method,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
+      },
+      body: req.method !== 'GET' ? JSON.stringify(req.body) : undefined
     });
-  }
 
-  // Jei ne /ping, grąžinam klaidą (nes nenorim nieko siųsti į Google Script)
-  return res.status(400).json({
-    status: 'error',
-    message: 'Only /ping endpoint is supported in this mode'
-  });
+    const data = await openaiResponse.json();
+    res.status(openaiResponse.status).json(data);
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 }
