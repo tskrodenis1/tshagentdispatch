@@ -1,0 +1,8 @@
+{
+  "version": 2,
+  "functions": {
+    "api/gas-proxy/[...slug].js": {
+      "runtime": "nodejs18.x"
+    }
+  }
+}
