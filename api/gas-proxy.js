@@ -1,8 +1,10 @@
 export default async function handler(req, res) {
   const realIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
 
-  // Jei kelias /ping – grąžinam testinį atsakymą
-  if (req.url.startsWith('/ping') || req.query?.ping !== undefined) {
+  // Nuimame query string
+  const cleanPath = req.url.split('?')[0];
+
+  if (cleanPath === '/ping') {
     console.log("=== TEST REQUEST ===");
     console.log("Client IP:", realIp);
     console.log("Method:", req.method);
@@ -18,6 +20,5 @@ export default async function handler(req, res) {
     });
   }
 
-  // Kitu atveju – tavo dabartinė logika
   res.status(404).json({ status: "error", message: "Unknown path" });
 }
