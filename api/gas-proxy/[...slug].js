@@ -1,23 +1,24 @@
 export default async function handler(req, res) {
-  const { slug } = req.query;
-
-  // Sujungiame URL kelią
-  const path = slug.join('/');
-
   try {
-    const openaiResponse = await fetch(`https://api.openai.com/v1/${path}`, {
-      method: req.method,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
-      },
-      body: req.method !== 'GET' ? JSON.stringify(req.body) : undefined
-    });
+    const { slug } = req.query;
 
-    const data = await openaiResponse.json();
-    res.status(openaiResponse.status).json(data);
+    if (slug[0] === 'ping') {
+      return res.status(200).json({ status: 'ok', message: 'pong' });
+    }
 
+    if (slug[0] === 'test-openai') {
+      const apiKey = process.env.OPENAI_API_KEY;
+
+      if (!apiKey) {
+        return res.status(500).json({ status: 'error', message: 'OPENAI_API_KEY missing' });
+      }
+
+      // Tik testui — nesiunčiam į OpenAI, tik patikrinam raktą
+      return res.status(200).json({ status: 'ok', keyLength: apiKey.length });
+    }
+
+    res.status(404).json({ status: 'error', message: 'Unknown endpoint' });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ status: 'error', message: error.message });
   }
 }
