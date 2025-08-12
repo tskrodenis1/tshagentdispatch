@@ -2,18 +2,20 @@ export default async function handler(req, res) {
   try {
     const { slug } = req.query;
 
-    if (slug[0] === 'ping') {
+    // Užtikrinam, kad slug yra masyvas
+    const parts = Array.isArray(slug) ? slug : [slug].filter(Boolean);
+
+    if (parts[0] === 'ping') {
       return res.status(200).json({ status: 'ok', message: 'pong' });
     }
 
-    if (slug[0] === 'test-openai') {
+    if (parts[0] === 'test-openai') {
       const apiKey = process.env.OPENAI_API_KEY;
 
       if (!apiKey) {
         return res.status(500).json({ status: 'error', message: 'OPENAI_API_KEY missing' });
       }
 
-      // Tik testui — nesiunčiam į OpenAI, tik patikrinam raktą
       return res.status(200).json({ status: 'ok', keyLength: apiKey.length });
     }
 
