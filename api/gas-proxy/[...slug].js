@@ -2,7 +2,9 @@ export default async function handler(req, res) {
   const slug = req.query.slug || [];
   const actionPathFromSlug = slug.length ? `/${slug.join('/')}` : null;
   const actionPathFromQuery = req.query.actionPath;
-  const actionPath = actionPathFromSlug || actionPathFromQuery;
+  
+  // Užtikrinam, kad visada prasidėtų nuo "/"
+  const actionPath = actionPathFromSlug || (actionPathFromQuery ? `/${actionPathFromQuery}` : null);
 
   // Specialus /ping atsakymas
   if (actionPath === '/ping') {
