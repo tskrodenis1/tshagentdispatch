@@ -2,9 +2,16 @@ import OpenAI from "openai";
 
 export default async function handler(req, res) {
   try {
+    const agentKey = req.headers["x-agent-key"];
+    if (agentKey !== process.env.AGENT_KEY) {
+      return res.status(403).json({ status: "error", message: "Forbidden" });
+    }
+
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
-      return res.status(500).json({ status: "error", message: "OPENAI_API_KEY missing" });
+      return res
+        .status(500)
+        .json({ status: "error", message: "OPENAI_API_KEY missing" });
     }
 
     const client = new OpenAI({ apiKey });
@@ -13,7 +20,9 @@ export default async function handler(req, res) {
       messages: [{ role: "user", content: "Pasakyk labas" }],
     });
 
-    res.status(200).json({ status: "ok", reply: chat.choices[0].message.content });
+    res
+      .status(200)
+      .json({ status: "ok", reply: chat.choices[0].message.content });
   } catch (error) {
     res.status(500).json({ status: "error", message: error.message });
   }
