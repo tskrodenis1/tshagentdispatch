@@ -1,25 +1,20 @@
-import { NextApiRequest, NextApiResponse } from "next";
+export default function handler(req, res) {
+  try {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-/**
- * Vercel API route: /api/gas-proxy/ping
- * This endpoint returns a simple health check message.
- * Includes full CORS headers to support GPT Builder and iOS Safari.
- */
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
-  // ✅ Set CORS headers
-  res.setHeader("Access-Control-Allow-Origin", "*"); // Allow any origin
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS"); // Support these methods
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type"); // Allow content-type headers
+    if (req.method === "OPTIONS") {
+      return res.status(200).end();
+    }
 
-  // ✅ Handle preflight OPTIONS request
-  if (req.method === "OPTIONS") {
-    res.status(200).end(); // Stop here for preflight
-    return;
+    return res.status(200).json({
+      status: "ok",
+      message: "ping success",
+      time: new Date().toISOString()
+    });
+  } catch (err) {
+    console.error("ERROR in ping.js:", err);
+    return res.status(500).json({ status: "error", message: "Internal Server Error" });
   }
-
-  // ✅ Actual response for GET or POST
-  res.status(200).json({
-    status: "ok",
-    message: "PING from Vercel API – everything works correctly.",
-  });
 }
