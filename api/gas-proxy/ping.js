@@ -1,46 +1,25 @@
-export default async function handler(req, res) {
-  // Step 1 – Debug log everything about the request
-  console.log("DEBUG: Incoming request", {
-    method: req.method,
-    headers: req.headers,
-    query: req.query,
-    body: req.body
-  });
+import { NextApiRequest, NextApiResponse } from "next";
 
-  try {
-    // Step 2 – OPTIONAL: Auth check (uncomment only if you want to test it)
-    /*
-    const clientKey = req.headers["x-api-key"];
-    if (clientKey !== process.env.SECRET_KEY) {
-      console.warn("DEBUG: API key mismatch", { clientKey });
-      return res.status(403).json({ error: "Forbidden (invalid key)" });
-    }
-    */
+/**
+ * Vercel API route: /api/gas-proxy/ping
+ * This endpoint returns a simple health check message.
+ * Includes full CORS headers to support GPT Builder and iOS Safari.
+ */
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
+  // ✅ Set CORS headers
+  res.setHeader("Access-Control-Allow-Origin", "*"); // Allow any origin
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS"); // Support these methods
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type"); // Allow content-type headers
 
-    // Step 3 – OPTIONAL: External API call (currently disabled for testing)
-    /*
-    const upstreamResponse = await fetch("https://api.example.com/ping", {
-      method: "GET",
-      headers: { Authorization: `Bearer ${process.env.UPSTREAM_KEY}` }
-    });
-
-    if (!upstreamResponse.ok) {
-      console.warn("DEBUG: Upstream API returned error", upstreamResponse.status);
-      return res.status(upstreamResponse.status).json({ error: "Upstream error" });
-    }
-
-    const upstreamData = await upstreamResponse.json();
-    */
-
-    // Step 4 – Temporary debug success response
-    return res.status(200).json({
-      message: "ping success (debug mode)",
-      time: new Date().toISOString()
-      // upstream: upstreamData // Uncomment if upstream call is re-enabled
-    });
-
-  } catch (error) {
-    console.error("DEBUG: Handler threw error", error);
-    return res.status(500).json({ error: "Internal Server Error" });
+  // ✅ Handle preflight OPTIONS request
+  if (req.method === "OPTIONS") {
+    res.status(200).end(); // Stop here for preflight
+    return;
   }
+
+  // ✅ Actual response for GET or POST
+  res.status(200).json({
+    status: "ok",
+    message: "PING from Vercel API – everything works correctly.",
+  });
 }
