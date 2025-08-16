@@ -18,17 +18,21 @@ export async function GET(request: Request) {
 
     return new Response(
       JSON.stringify({
-        status: response.status,
-        answer: data.choices?.[0]?.message?.content ?? "⚠️ No answer",
-        raw: data
+        answer: data.choices?.[0]?.message?.content ?? "⚠️ No answer"
       }),
-      { status: 200 }
+      {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      }
     );
 
   } catch (error) {
     return new Response(
-      JSON.stringify({ error: "❌ Failed to fetch from OpenAI", details: error }),
-      { status: 500 }
+      JSON.stringify({ answer: "❌ Failed to fetch from OpenAI", details: error }),
+      {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      }
     );
   }
 }
